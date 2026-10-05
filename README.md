@@ -54,5 +54,5 @@ The scanner currently executes 21 checks across 7 categories:
 Clone the repository:
 
 ```bash
-git clone <YOUR-GITHUB-REPOSITORY-URL>
+git clone https://github.com/Siddharth0621/api-security-tester.git
 cd api-security-tester
