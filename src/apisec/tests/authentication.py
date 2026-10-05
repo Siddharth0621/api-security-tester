@@ -9,9 +9,12 @@ class AuthenticationTests:
     def __init__(self, tester):
         self.tester = tester
         self.findings = []
+        self.tests_run = 0
     
     def run(self) -> list:
         """Run all authentication tests."""
+        self.tests_run = 4
+        
         self.test_missing_auth()
         self.test_invalid_token()
         self.test_token_in_url()
@@ -75,6 +78,9 @@ class AuthenticationTests:
             self.tester.session.headers["Authorization"] = token
             
             for endpoint in self.tester.endpoints[:1]:  # Test first endpoint
+                if not endpoint.get("auth_required", True):
+                    continue
+
                 path = endpoint["path"]
                 try:
                     response = self.tester._make_request("GET", path)

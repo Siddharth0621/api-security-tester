@@ -1,0 +1,10 @@
+endpoints:
+  - path: /api/health
+    methods:
+      - GET
+    auth_required: false
+
+  - path: /api/users
+    methods:
+      - GET
+    auth_required: false

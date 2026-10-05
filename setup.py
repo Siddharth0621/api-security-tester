@@ -20,7 +20,7 @@ setup(
     author="Prateek Yadav",
     author_email="yprateek181@gmail.com",
     description="Automated security testing for REST APIs",
-    long_description=open("README.md").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/prateek-ydv/api-security-tester",
     classifiers=[

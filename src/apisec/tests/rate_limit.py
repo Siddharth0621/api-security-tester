@@ -10,9 +10,11 @@ class RateLimitTests:
     def __init__(self, tester):
         self.tester = tester
         self.findings = []
+        self.tests_run = 0
     
     def run(self) -> list:
         """Run all rate limit tests."""
+        self.tests_run = 2
         self.test_rate_limit_exists()
         self.test_rate_limit_bypass()
         return self.findings
@@ -21,8 +23,12 @@ class RateLimitTests:
         """Test if rate limiting is implemented."""
         if not self.tester.endpoints:
             return
-        
+
         endpoint = self.tester.endpoints[0]
+
+        if not endpoint.get("auth_required", True):
+            return  
+    
         path = endpoint["path"]
         
         # Send rapid requests
@@ -74,6 +80,10 @@ class RateLimitTests:
             return
         
         endpoint = self.tester.endpoints[0]
+
+        if not endpoint.get("auth_required", True):
+            return
+        
         path = endpoint["path"]
         
         bypass_headers = [

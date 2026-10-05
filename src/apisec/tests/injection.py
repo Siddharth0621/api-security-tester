@@ -29,9 +29,11 @@ class InjectionTests:
     def __init__(self, tester):
         self.tester = tester
         self.findings = []
+        self.tests_run = 0
     
     def run(self) -> list:
         """Run all injection tests."""
+        self.tests_run = 3
         self.test_sql_injection()
         self.test_nosql_injection()
         self.test_command_injection()

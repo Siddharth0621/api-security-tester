@@ -17,110 +17,306 @@ def generate_report(results: dict, output_path: str, format: str = "html"):
 def _generate_html_report(results: dict, output_path: str):
     """Generate HTML report."""
     findings = results.get("findings", [])
-    
-    severity_counts = {"critical": 0, "high": 0, "medium": 0, "low": 0}
-    for f in findings:
-        severity = f.get("severity", "low").lower()
+
+    severity_counts = {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+    }
+
+    for finding in findings:
+        severity = finding.get("severity", "low").lower()
         if severity in severity_counts:
             severity_counts[severity] += 1
-    
+
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Security Report</title>
+
     <style>
-        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #e6edf3; padding: 2rem; }}
-        .container {{ max-width: 1200px; margin: 0 auto; }}
-        h1 {{ color: #39ff14; margin-bottom: 1rem; }}
-        .summary {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }}
-        .summary-card {{ background: #161b22; padding: 1.5rem; border-radius: 8px; text-align: center; }}
-        .summary-card.critical {{ border-left: 4px solid #ff4444; }}
-        .summary-card.high {{ border-left: 4px solid #ff8800; }}
-        .summary-card.medium {{ border-left: 4px solid #ffcc00; }}
-        .summary-card.low {{ border-left: 4px solid #00ccff; }}
-        .summary-card h3 {{ font-size: 2rem; margin-bottom: 0.5rem; }}
-        .findings {{ margin-top: 2rem; }}
-        .finding {{ background: #161b22; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem; }}
-        .finding-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }}
-        .severity {{ padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }}
-        .severity.critical {{ background: #ff4444; }}
-        .severity.high {{ background: #ff8800; }}
-        .severity.medium {{ background: #ffcc00; color: #000; }}
-        .severity.low {{ background: #00ccff; color: #000; }}
-        .finding h3 {{ margin-bottom: 0.5rem; }}
-        .finding p {{ color: #8b949e; }}
-        .meta {{ margin-top: 2rem; color: #8b949e; font-size: 0.875rem; }}
+        * {{
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }}
+
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                         Roboto, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            padding: 2rem;
+        }}
+
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+        }}
+
+        h1 {{
+            color: #39ff14;
+            margin-bottom: 1rem;
+        }}
+
+        .summary {{
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }}
+
+        .summary-card {{
+            background: #161b22;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }}
+
+        .summary-card.critical {{
+            border-left: 4px solid #ff4444;
+        }}
+
+        .summary-card.high {{
+            border-left: 4px solid #ff8800;
+        }}
+
+        .summary-card.medium {{
+            border-left: 4px solid #ffcc00;
+        }}
+
+        .summary-card.low {{
+            border-left: 4px solid #00ccff;
+        }}
+
+        .summary-card h3 {{
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }}
+
+        .findings {{
+            margin-top: 2rem;
+        }}
+
+        .finding {{
+            background: #161b22;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }}
+
+        .finding-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }}
+
+        .severity {{
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }}
+
+        .severity.critical {{
+            background: #ff4444;
+        }}
+
+        .severity.high {{
+            background: #ff8800;
+        }}
+
+        .severity.medium {{
+            background: #ffcc00;
+            color: #000;
+        }}
+
+        .severity.low {{
+            background: #00ccff;
+            color: #000;
+        }}
+
+        .finding h3 {{
+            margin-bottom: 0.5rem;
+        }}
+
+        .finding p {{
+            color: #8b949e;
+            margin-top: 0.5rem;
+        }}
+
+        .evidence {{
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #0d1117;
+            border-radius: 6px;
+        }}
+
+        .evidence h4 {{
+            margin-bottom: 0.75rem;
+            color: #e6edf3;
+        }}
+
+        .evidence-row {{
+            margin-bottom: 0.4rem;
+            color: #8b949e;
+        }}
+
+        .evidence-key {{
+            color: #e6edf3;
+            font-weight: bold;
+        }}
+
+        .meta {{
+            margin-top: 2rem;
+            color: #8b949e;
+            font-size: 0.875rem;
+        }}
     </style>
 </head>
+
 <body>
     <div class="container">
+
         <h1>🔒 API Security Report</h1>
-        <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
-        
+
+        <p>
+            Generated:
+            {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        </p>
+
         <div class="summary">
+
             <div class="summary-card critical">
                 <h3>{severity_counts['critical']}</h3>
                 <p>Critical</p>
             </div>
+
             <div class="summary-card high">
                 <h3>{severity_counts['high']}</h3>
                 <p>High</p>
             </div>
+
             <div class="summary-card medium">
                 <h3>{severity_counts['medium']}</h3>
                 <p>Medium</p>
             </div>
+
             <div class="summary-card low">
                 <h3>{severity_counts['low']}</h3>
                 <p>Low</p>
             </div>
+
         </div>
-        
+
         <div class="findings">
+
             <h2>Findings</h2>
-            {"".join(_render_finding_html(f) for f in findings if not f.get('passed', False))}
+
+            {"".join(
+                _render_finding_html(f)
+                for f in findings
+                if not f.get("passed", False)
+            )}
+
         </div>
-        
+
         <div class="meta">
-            <p>Tests Run: {results.get('tests_run', 0)} | Duration: {results.get('duration', 0):.2f}s</p>
+
+            <p>
+                Tests Run: {results.get('tests_run', 0)}
+                |
+                Duration: {results.get('duration', 0):.2f}s
+            </p>
+
             <p>Generated by API Security Tester</p>
+
         </div>
+
     </div>
 </body>
-</html>"""
-    
-    with open(output_path, "w") as f:
+</html>
+"""
+
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)
 
 
 def _render_finding_html(finding: dict) -> str:
     """Render a single finding as HTML."""
+
     severity = finding.get("severity", "low").lower()
+    evidence = finding.get("evidence", {})
+
+    evidence_html = ""
+
+    if evidence:
+        evidence_rows = ""
+
+        for key, value in evidence.items():
+            evidence_rows += f"""
+            <div class="evidence-row">
+                <span class="evidence-key">{key}:</span>
+                {value}
+            </div>
+            """
+
+        evidence_html = f"""
+        <div class="evidence">
+            <h4>Evidence</h4>
+            {evidence_rows}
+        </div>
+        """
+
     return f"""
     <div class="finding">
+
         <div class="finding-header">
+
             <h3>{finding.get('test', 'Unknown')}</h3>
-            <span class="severity {severity}">{severity.upper()}</span>
+
+            <span class="severity {severity}">
+                {severity.upper()}
+            </span>
+
         </div>
-        <p><strong>Endpoint:</strong> {finding.get('endpoint', 'N/A')}</p>
-        <p>{finding.get('description', '')}</p>
+
+        <p>
+            <strong>Endpoint:</strong>
+            {finding.get('endpoint', 'N/A')}
+        </p>
+
+        <p>
+            {finding.get('description', '')}
+        </p>
+
+        {evidence_html}
+
     </div>
     """
 
 
 def _generate_json_report(results: dict, output_path: str):
     """Generate JSON report."""
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2, default=str)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(
+            results,
+            f,
+            indent=2,
+            default=str,
+        )
 
 
 def _generate_markdown_report(results: dict, output_path: str):
     """Generate Markdown report."""
+
     findings = results.get("findings", [])
-    
+
     md = f"""# API Security Report
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -137,21 +333,33 @@ def _generate_markdown_report(results: dict, output_path: str):
 ## Findings
 
 """
-    
+
     for finding in findings:
-        if finding.get('passed', False):
+
+        if finding.get("passed", False):
             continue
-        
+
         severity = finding.get("severity", "low").upper()
+
         md += f"""### [{severity}] {finding.get('test', 'Unknown')}
 
 **Endpoint:** {finding.get('endpoint', 'N/A')}
 
 {finding.get('description', '')}
 
----
-
 """
-    
-    with open(output_path, "w") as f:
+
+        evidence = finding.get("evidence", {})
+
+        if evidence:
+            md += "**Evidence:**\n\n"
+
+            for key, value in evidence.items():
+                md += f"- **{key}:** {value}\n"
+
+            md += "\n"
+
+        md += "---\n\n"
+
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(md)

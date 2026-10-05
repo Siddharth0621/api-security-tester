@@ -12,6 +12,7 @@ from .tests.injection import InjectionTests
 from .tests.rate_limit import RateLimitTests
 from .tests.exposure import ExposureTests
 from .tests.headers import HeaderTests
+from .tests.network import NetworkTests
 
 
 class APISecurityTester:
@@ -68,6 +69,7 @@ class APISecurityTester:
         self.run_rate_limit_tests()
         self.run_exposure_tests()
         self.run_header_tests()
+        self.run_network_tests()
         
         self.results["duration"] = time.time() - start_time
         return self.results
@@ -77,14 +79,19 @@ class APISecurityTester:
         print("[1/6] Running Authentication Tests...")
         tests = AuthenticationTests(self)
         findings = tests.run()
+
+        self.results["tests_run"] += tests.tests_run
+
         self._process_findings(findings, "Authentication")
         return self.results
+    
     
     def run_authorization_tests(self) -> dict:
         """Run authorization-related tests."""
         print("[2/6] Running Authorization Tests...")
         tests = AuthorizationTests(self)
         findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
         self._process_findings(findings, "Authorization")
         return self.results
     
@@ -93,6 +100,7 @@ class APISecurityTester:
         print("[3/6] Running Injection Tests...")
         tests = InjectionTests(self)
         findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
         self._process_findings(findings, "Injection")
         return self.results
     
@@ -101,6 +109,7 @@ class APISecurityTester:
         print("[4/6] Running Rate Limit Tests...")
         tests = RateLimitTests(self)
         findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
         self._process_findings(findings, "Rate Limiting")
         return self.results
     
@@ -109,6 +118,7 @@ class APISecurityTester:
         print("[5/6] Running Data Exposure Tests...")
         tests = ExposureTests(self)
         findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
         self._process_findings(findings, "Data Exposure")
         return self.results
     
@@ -117,17 +127,41 @@ class APISecurityTester:
         print("[6/6] Running Security Header Tests...")
         tests = HeaderTests(self)
         findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
         self._process_findings(findings, "Headers")
         return self.results
-    
+
+    def run_network_tests(self) -> dict:
+        print("[7/7] Running Network/TLS Tests...")
+        tests = NetworkTests(self)
+        findings = tests.run()
+        self.results["tests_run"] += tests.tests_run
+        self._process_findings(findings, "Network/TLS")
+        return self.results
+
     def _process_findings(self, findings: list, category: str):
-        """Process and store test findings."""
         for finding in findings:
             finding["category"] = category
-            self.results["findings"].append(finding)
-            self.results["tests_run"] += 1
-            
+
             if finding.get("passed", False):
                 self.results["passed"] += 1
             else:
                 self.results["failed"] += 1
+                self.results["findings"].append(finding)
+
+            # tests_run is counted by each test module
+       
+            
+
+
+    
+        
+        
+
+        
+
+    
+        
+            
+
+    

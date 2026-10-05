@@ -22,9 +22,11 @@ class ExposureTests:
     def __init__(self, tester):
         self.tester = tester
         self.findings = []
+        self.tests_run = 0
     
     def run(self) -> list:
         """Run all data exposure tests."""
+        self.tests_run = 3
         self.test_sensitive_data_exposure()
         self.test_verbose_errors()
         self.test_debug_info()

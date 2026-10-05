@@ -9,9 +9,11 @@ class AuthorizationTests:
     def __init__(self, tester):
         self.tester = tester
         self.findings = []
+        self.tests_run = 0
     
     def run(self) -> list:
         """Run all authorization tests."""
+        self.tests_run = 2
         self.test_idor()
         self.test_http_method_override()
         return self.findings
